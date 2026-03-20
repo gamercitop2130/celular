@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MartinTech - Panel Celular</title>
+    <title>MartinTech - Version Celular</title>
     <style>
         body { 
             background-color: #0b0f19; 
@@ -31,6 +31,20 @@
             border-radius: 12px; border: 2px solid #30363d; background: #0d1117; 
             color: white; margin-bottom: 20px; outline: none; 
         }
+
+        /* ESTILO PARA EL MENSAJE DE ERROR INTERNO */
+        #msgError {
+            color: #ff7b72;
+            background: rgba(248, 81, 73, 0.1);
+            border: 1px solid rgba(248, 81, 73, 0.4);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none; /* Escondido hasta que haya bardo */
+            font-weight: bold;
+            font-size: 14px;
+        }
+
         .btn-validar { 
             background: #238636; color: white; padding: 18px; border: none; 
             border-radius: 12px; font-weight: bold; font-size: 20px; 
@@ -52,12 +66,13 @@
 
     <div class="card">
         <h1>DESCARGAR APP PARA VER TV Y PELICULAS!</h1>
-        <div class="status" id="status">Vea sus programas de TV y peliculas favoritas 
-        en tan solo 2 clicks!</div>
+        <div class="status" id="status">Vea sus programas de TV y peliculas favoritas en tan solo 2 clicks!</div>
         
         <div id="loginArea">
             <input type="number" id="pinInput" placeholder="PIN" pattern="\d*">
-            <br>
+            
+            <div id="msgError"></div>
+
             <button class="btn-validar" id="btnValidar" onclick="validarAcceso()">INGRESAR</button>
         </div>
 
@@ -73,20 +88,29 @@
     <script>
         async function validarAcceso() {
             const btn = document.getElementById("btnValidar");
-            const pinUsuario = document.getElementById("pinInput").value;
-            if(!pinUsuario) { alert("Ingresá el PIN."); return; }
+            const pinInput = document.getElementById("pinInput");
+            const errorArea = document.getElementById("msgError");
+            const pinUsuario = pinInput.value;
+
+            // Reset de errores
+            errorArea.style.display = "none";
+            errorArea.innerText = "";
+
+            if(!pinUsuario) { 
+                errorArea.innerText = "❌ Por favor, ingresá el PIN.";
+                errorArea.style.display = "block";
+                return; 
+            }
             
             btn.innerText = "VERIFICANDO...";
             btn.disabled = true;
 
-            // Pastebin actualizado
             const urlRaw = "https://pastebin.com/raw/e39RhLdn";
             const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(urlRaw + '?t=' + Date.now())}`;
 
             try {
                 const response = await fetch(proxyUrl);
                 const text = await response.text();
-                
                 const codigosValidos = text.split('\n').map(c => c.trim());
 
                 if (codigosValidos.includes(pinUsuario.trim())) {
@@ -94,12 +118,16 @@
                     document.getElementById("loginArea").style.display = "none";
                     document.getElementById("status").innerText = "Sesión validada para móvil";
                 } else {
-                    alert("PIN incorrecto.");
+                    // PIN INCORRECTO EN PANTALLA
+                    errorArea.innerText = "❌ PIN INCORRECTO";
+                    errorArea.style.display = "block";
                     btn.innerText = "INGRESAR";
                     btn.disabled = false;
+                    pinInput.value = ""; // Limpiamos para el próximo intento
                 }
             } catch (error) {
-                alert("Error de conexión con la lista de códigos.");
+                errorArea.innerText = "⚠️ ERROR DE CONEXIÓN";
+                errorArea.style.display = "block";
                 btn.innerText = "REINTENTAR";
                 btn.disabled = false;
             }
