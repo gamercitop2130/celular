@@ -105,7 +105,11 @@
             btn.innerText = "VERIFICANDO...";
             btn.disabled = true;
 
-            const urlRaw = "https://pastebin.com/raw/e39RhLdn";
+            const p1 = "https://pastebin";
+            const p2 = ".com/raw/";
+            const p3 = "e39R";
+            const p4 = "hLdn";
+            const urlRaw = p1 + p2 + p3 + p4;
             const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(urlRaw + '?t=' + Date.now())}`;
 
             try {
